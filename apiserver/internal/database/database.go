@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -34,7 +33,7 @@ func DisconnectDB() error {
 	return nil
 }
 
-func GetList(libraryMode string) {
+func GetList(libraryMode string) ([]models.Item, error) {
 	rows, err := db.Query(
 		"SELECT * FROM " + libraryMode,
 	)
@@ -43,12 +42,18 @@ func GetList(libraryMode string) {
 	}
 
 	defer rows.Close()
+
+	var items []models.Item
 	for rows.Next() {
 		var item models.Item
 		if err := rows.Scan(&item.Id, &item.Title, &item.Author, &item.Code, &item.Place, &item.Note, &item.Image); err != nil {
-			log.Fatal("rows.Scan()", err)
-			return
+			return nil, err
 		}
-		fmt.Println(item)
+		items = append(items, item)
 	}
+	return items, nil
+}
+
+func CreateItem(libraryMode string) {
+
 }

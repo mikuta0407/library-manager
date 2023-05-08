@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/mikuta0407/library-manager/internal/database"
+	"github.com/mikuta0407/library-manager/internal/models"
 )
 
 func List(w http.ResponseWriter, r *http.Request) {
@@ -16,5 +17,16 @@ func List(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, err.Error())
 		return
 	}
-	database.GetList(libraryMode)
+	var items []models.Item
+	items, err := database.GetList(libraryMode)
+
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, err.Error())
+		return
+	}
+
+	log.Println(items)
+	fmt.Fprintf(w, "%v", items)
+
 }
