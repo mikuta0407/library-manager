@@ -36,7 +36,7 @@ func DisconnectDB() error {
 
 func GetList(libraryMode string) {
 	rows, err := db.Query(
-		`SELECT * FROM book`,
+		"SELECT * FROM " + libraryMode,
 	)
 	if err != nil {
 		log.Fatalln(err)
