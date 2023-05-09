@@ -22,6 +22,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use POST Method"))
+		return
 	}
 
 	// MIMEタイプ確認

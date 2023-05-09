@@ -22,6 +22,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use PUT Method"))
+		return
 	}
 
 	// MIMEタイプ確認

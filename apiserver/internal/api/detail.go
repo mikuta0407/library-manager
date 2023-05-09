@@ -19,6 +19,7 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use GET Method"))
+		return
 	}
 
 	params, err := getRouteParams(r, 3)

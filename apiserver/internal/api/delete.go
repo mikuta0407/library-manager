@@ -21,6 +21,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use DELETE Method"))
+		return
 	}
 
 	// パラメータ数確認
