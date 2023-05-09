@@ -53,7 +53,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err.Error() == "http: request body too large" { // 読んだバイト数が(指定した)最大バイト数を超えた場合蹴る
 			log.Println(err)
-			returnErrorMessage(w, http.StatusRequestEntityTooLarge, errors.New("Body should be less than 1536 bytes"))
+			returnErrorMessage(w, http.StatusRequestEntityTooLarge, errors.New("Body should be less than 5242880 bytes"))
 			return
 		} else {
 			log.Println(err)
