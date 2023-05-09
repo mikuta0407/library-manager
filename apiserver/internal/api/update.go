@@ -91,7 +91,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// UPDATE実行
-	id, err := database.UpdateItem(libraryMode, item)
+	err = database.UpdateItem(libraryMode, item)
 	if err != nil {
 		log.Println(err)
 		if err.Error() == "No record" {
@@ -106,7 +106,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	log.Println("Update OK!")
 	resMsg := models.SuccessResponseMessage{
 		Message: "Success",
-		Id:      strconv.FormatInt(id, 10),
+		Id:      strconv.FormatInt(int64(item.Id), 10),
 	}
 
 	w.WriteHeader(http.StatusOK)
