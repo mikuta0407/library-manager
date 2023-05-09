@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -257,4 +258,41 @@ func searchColumnId(libraryMode string, columnName string, value string) ([]int6
 
 	return res, nil
 
+}
+
+// UPDATEする
+func UpdateItem(libraryMode string, item models.Item) (int64, error) {
+
+	itemId := int64(item.Id)
+
+	// 存在するのか確認
+	if _, err := GetDetail(libraryMode, int(itemId)); err != nil {
+		return itemId, errors.New("No record")
+	}
+
+	// トランザクション開始
+	tx, err := db.Begin()
+	if err != nil {
+		return -1, err
+	}
+
+	// UPDATEクエリ準備
+	var prepStmt string
+	if libraryMode == "book" {
+		prepStmt = "UPDATE book SET title = ?, author = ?, code = ?, place = ?, note = ?, image = ? WHERE id = ?"
+	} else if libraryMode == "cd" {
+		prepStmt = "UPDATE cd SET title = ?, artist = ?, code = ?, place = ?, note = ?, image = ? WHERE id = ?"
+	}
+
+	// Update実行
+	_, err = tx.Exec(prepStmt, item.Title, item.Author, item.Code, item.Place, item.Note, item.Image, item.Id)
+	if err != nil {
+		tx.Rollback()
+		return -1, err
+	}
+
+	// コミット
+	tx.Commit()
+
+	return itemId, nil
 }
