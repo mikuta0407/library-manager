@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,12 @@ import (
 
 func List(w http.ResponseWriter, r *http.Request) {
 	// /list/(book|cd)
+
+	switch r.Method {
+	case "GET":
+	default:
+		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use GET Method"))
+	}
 
 	params, err := getRouteParams(r, 2)
 	if err != nil {
