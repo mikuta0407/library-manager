@@ -15,13 +15,13 @@ import (
 )
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	// /create/(book|cd)/
+	// /update/(book|cd)/
 
-	// POSTだけを受け入れる
+	// PUTだけを受け入れる
 	switch r.Method {
-	case "POST":
+	case "PUT":
 	default:
-		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use POST Method"))
+		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use PUT Method"))
 	}
 
 	// MIMEタイプ確認
