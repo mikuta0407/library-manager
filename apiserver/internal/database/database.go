@@ -77,6 +77,41 @@ func GetDetail(libraryMode string, id int) (models.Item, error) {
 	return item, nil
 }
 
-func CreateItem(libraryMode string) {
+func CreateItem(libraryMode string, item models.Item) (int64, error) {
 
+	// INSERTする
+	var insertId int64
+
+	// トランザクション開始
+	tx, err := db.Begin()
+	if err != nil {
+		return -1, err
+	}
+
+	// クエリ準備
+	var prepStmt string
+	if libraryMode == "book" {
+		prepStmt = "INSERT INTO book (title, author, code, place, note, image) values ($1, $2, $3, $4, $5, $6)"
+	} else if libraryMode == "cd" {
+		prepStmt = "INSERT INTO book (title, artist, code, place, note, image) values ($1, $2, $3, $4, $5, $6)"
+	}
+
+	// INSRT実行
+	res, err := tx.Exec(prepStmt, item.Id, item.Title, item.Author, item.Code, item.Place, item.Note, item.Image)
+	if err != nil {
+		tx.Rollback()
+		return -1, err
+	}
+
+	// ID取得
+	insertId, err = res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return -1, err
+	}
+
+	// コミット
+	tx.Commit()
+
+	return insertId, nil
 }
