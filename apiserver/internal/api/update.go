@@ -32,7 +32,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// パラメータ数確認
-	params, err := getRouteParams(r, 2)
+	params, err := getRouteParams(r, 3)
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
@@ -75,11 +75,15 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	log.Println(item)
 
 	// 最低限バリデーション
-	if item.Id == 0 {
+
+	// id
+	item.Id, err = strconv.Atoi(params[2])
+	if err != nil {
 		log.Println(err)
-		returnErrorMessage(w, http.StatusBadRequest, errors.New("no id specified"))
+		returnErrorMessage(w, http.StatusBadRequest, errors.New("id is not numeric"))
 		return
 	}
+	// タイトル
 	if item.Title == "" {
 		log.Println(err)
 		returnErrorMessage(w, http.StatusBadRequest, errors.New("no title specified"))

@@ -1,7 +1,7 @@
 package models
 
 type Item struct {
-	Id     int8   `json:"id"`
+	Id     int    `json:"id"`
 	Title  string `json:"title"`
 	Author string `json:"author"` // artistを含む
 	Code   string `json:"code"`
