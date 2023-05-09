@@ -13,11 +13,11 @@ func HandleRequests() {
 		log.Fatalln(err)
 	}
 
-	http.HandleFunc("/list/", api.List)     // 一覧
-	http.HandleFunc("/detail/", api.Detail) // 詳細
-	http.HandleFunc("/create/", api.Create) // レコード作成
-	http.HandleFunc("/update/", api.Update) // レコード編集
-	http.HandleFunc("/delete/", api.Delete) // レコード削除
+	http.HandleFunc("/list/", api.List) // 一覧
+	//http.HandleFunc("/detail/", api.Detail) // 詳細
+	//http.HandleFunc("/create/", api.Create) // レコード作成
+	//http.HandleFunc("/update/", api.Update) // レコード編集
+	//http.HandleFunc("/delete/", api.Delete) // レコード削除
 	log.Fatal(http.ListenAndServe(":8081", nil))
 	defer database.DisconnectDB()
 }

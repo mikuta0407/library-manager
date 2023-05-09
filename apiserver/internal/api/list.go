@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,23 +11,35 @@ import (
 )
 
 func List(w http.ResponseWriter, r *http.Request) {
-	params := getRouteParams(r)
+	// /list/(book|cd)
+
+	params, err := getRouteParams(r, 2)
+	if err != nil {
+		returnErrorMessage(w, http.StatusBadRequest, err)
+		return
+	}
+
 	fmt.Println(params)
 	if err := judgeMode(params); err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, err.Error())
+		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
 	}
-	var items []models.Item
-	items, err := database.GetList(libraryMode)
+	var items models.ItemArray
+	items, err = database.GetList(libraryMode)
 
 	if err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, err.Error())
+		returnErrorMessage(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	log.Println(items)
-	fmt.Fprintf(w, "%v", items)
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")       // Content-Type指定
+	if err := json.NewEncoder(w).Encode(items); err != nil { // JSON生成、応答
+		log.Printf("json encode Error: %s", err)
+	}
+	return
 
 }

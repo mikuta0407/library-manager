@@ -1,12 +1,14 @@
 package api
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 )
 
-func getRouteParams(r *http.Request) []string {
+func getRouteParams(r *http.Request, limit int) ([]string, error) {
 	splited := strings.Split(r.RequestURI, "/")
 	var params []string
 	for i := 0; i < len(splited); i++ {
@@ -14,7 +16,13 @@ func getRouteParams(r *http.Request) []string {
 			params = append(params, splited[i])
 		}
 	}
-	return params
+
+	log.Println(params)
+	if len(params) != limit {
+		log.Println("neko", params)
+		return nil, errors.New("Param length error")
+	}
+	return params, nil
 }
 
 var libraryMode string
