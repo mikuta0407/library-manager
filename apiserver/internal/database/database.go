@@ -261,19 +261,19 @@ func searchColumnId(libraryMode string, columnName string, value string) ([]int6
 }
 
 // UPDATEする
-func UpdateItem(libraryMode string, item models.Item) (int64, error) {
+func UpdateItem(libraryMode string, item models.Item) error {
 
 	itemId := int64(item.Id)
 
 	// 存在するのか確認
 	if _, err := GetDetail(libraryMode, int(itemId)); err != nil {
-		return itemId, errors.New("No record")
+		return errors.New("No record")
 	}
 
 	// トランザクション開始
 	tx, err := db.Begin()
 	if err != nil {
-		return -1, err
+		return err
 	}
 
 	// UPDATEクエリ準備
@@ -288,11 +288,46 @@ func UpdateItem(libraryMode string, item models.Item) (int64, error) {
 	_, err = tx.Exec(prepStmt, item.Title, item.Author, item.Code, item.Place, item.Note, item.Image, item.Id)
 	if err != nil {
 		tx.Rollback()
-		return -1, err
+		return err
 	}
 
 	// コミット
 	tx.Commit()
 
-	return itemId, nil
+	return nil
+}
+
+// DELETEする
+func DeleteItem(libraryMode string, itemId int) error {
+
+	// 存在するのか確認
+	if _, err := GetDetail(libraryMode, itemId); err != nil {
+		return errors.New("No record")
+	}
+
+	// トランザクション開始
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// DELETEクエリ準備
+	var prepStmt string
+	if libraryMode == "book" {
+		prepStmt = "DELETE FROM book WHERE id = ?"
+	} else if libraryMode == "cd" {
+		prepStmt = "DELETE FROM cd WHERE id = ?"
+	}
+
+	// Delete実行
+	_, err = tx.Exec(prepStmt, itemId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// コミット
+	tx.Commit()
+
+	return nil
 }

@@ -17,9 +17,8 @@ func HandleRequests() {
 	http.HandleFunc("/detail/", api.Detail) // 詳細
 	http.HandleFunc("/search/", api.Search) // 検索
 	http.HandleFunc("/create/", api.Create) // レコード作成
-
 	http.HandleFunc("/update/", api.Update) // レコード編集
-	//http.HandleFunc("/delete/", api.Delete) // レコード削除
+	http.HandleFunc("/delete/", api.Delete) // レコード削除
 	log.Fatal(http.ListenAndServe(":8081", nil))
 	defer database.DisconnectDB()
 }
