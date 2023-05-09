@@ -45,7 +45,11 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		returnErrorMessage(w, http.StatusInternalServerError, err)
+		if err.Error() == "sql: no rows in result set" {
+			returnErrorMessage(w, http.StatusNotFound, errors.New("No record"))
+		} else {
+			returnErrorMessage(w, http.StatusInternalServerError, err)
+		}
 		return
 	}
 
