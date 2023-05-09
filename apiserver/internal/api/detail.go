@@ -13,7 +13,7 @@ import (
 )
 
 func Detail(w http.ResponseWriter, r *http.Request) {
-	// /list/(book|cd)/{id}
+	// /detail/(book|cd)/{id}
 
 	switch r.Method {
 	case "GET":
