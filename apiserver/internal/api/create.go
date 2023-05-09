@@ -82,6 +82,11 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := database.CreateItem(libraryMode, item)
+	if err != nil {
+		log.Println(err)
+		returnErrorMessage(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	// IDの返答
 	log.Println("Regist OK!")
