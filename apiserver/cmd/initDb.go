@@ -1,40 +1,38 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-	"fmt"
+	_ "embed"
+	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 )
 
 // initDbCmd represents the initDb command
 var initDbCmd = &cobra.Command{
-	Use:   "initDb",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "initdb",
+	Short: "Generate empty sqlite3 db file",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("initDb called")
+		generateDbFile(filepath)
 	},
 }
+
+var filepath string
 
 func init() {
 	rootCmd.AddCommand(initDbCmd)
 
-	// Here you will define your flags and configuration settings.
+	initDbCmd.Flags().StringVarP(&filepath, "filepath", "f", "./library.db", "filename of empty sqlite3 db file ")
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initDbCmd.PersistentFlags().String("foo", "", "A help for foo")
+//go:embed library.db
+var emptyLibraryDBFileBytes []byte
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initDbCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func generateDbFile(filepath string) {
+	if err := os.WriteFile(filepath, emptyLibraryDBFileBytes, 0666); err != nil {
+		log.Fatal(err)
+	}
 }

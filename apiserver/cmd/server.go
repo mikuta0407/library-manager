@@ -13,20 +13,20 @@ import (
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "start api server",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("server called")
-		server.HandleRequests()
+		server.HandleRequests(httpHost, httpPort, sqliteDBPath)
 	},
 }
 
+var httpHost string
+var httpPort string
+var sqliteDBPath string
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
-
+	serverCmd.Flags().StringVarP(&httpHost, "httphost", "l", "0.0.0.0", "Option: HTTP Host (defaul: 0.0.0.0)")
+	serverCmd.Flags().StringVarP(&httpPort, "httpport", "p", "8080", "Option: HTTP Port (defaul: 8080)")
+	serverCmd.Flags().StringVarP(&sqliteDBPath, "dbfile", "f", "./library.db", "Option: SQLite3 DB File (defaul: ./library.db)")
 }

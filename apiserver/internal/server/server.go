@@ -8,8 +8,8 @@ import (
 	"github.com/mikuta0407/library-manager/internal/database"
 )
 
-func HandleRequests() {
-	if err := database.ConnectDB("./library.db"); err != nil {
+func HandleRequests(httpHost string, httpPort string, sqliteDBPath string) {
+	if err := database.ConnectDB(sqliteDBPath); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -19,10 +19,6 @@ func HandleRequests() {
 	http.HandleFunc("/create/", api.Create) // レコード作成
 	http.HandleFunc("/update/", api.Update) // レコード編集
 	http.HandleFunc("/delete/", api.Delete) // レコード削除
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Fatal(http.ListenAndServe(httpHost+":"+httpPort, nil))
 	defer database.DisconnectDB()
-}
-
-func main() {
-	HandleRequests()
 }
