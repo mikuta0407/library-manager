@@ -32,7 +32,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// パラメータ数確認
-	params, err := getRouteParams(r, 2)
+	params, err := getRouteParams(r, 3)
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return

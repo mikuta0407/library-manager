@@ -21,7 +21,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params, err := getRouteParams(r, 2)
+	params, err := getRouteParams(r, 3)
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return

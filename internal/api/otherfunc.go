@@ -28,9 +28,9 @@ func getRouteParams(r *http.Request, limit int) ([]string, error) {
 var libraryMode string
 
 func judgeMode(params []string) error {
-	if params[1] == "cd" {
+	if params[2] == "cd" {
 		libraryMode = "cd"
-	} else if params[1] == "book" {
+	} else if params[2] == "book" {
 		libraryMode = "book"
 	} else {
 		return fmt.Errorf("not cd or book")

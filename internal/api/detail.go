@@ -22,7 +22,7 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params, err := getRouteParams(r, 3)
+	params, err := getRouteParams(r, 4)
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
@@ -35,7 +35,7 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(params[2])
+	id, err := strconv.Atoi(params[3])
 	if err != nil {
 		log.Println(err)
 		returnErrorMessage(w, http.StatusBadRequest, err)
