@@ -13,7 +13,7 @@ import (
 )
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	// /delete/(book|cd)/{id}
+	// /delete/(book|book-doujin|cd|other)/{id}
 
 	// DELETEだけを受け入れる
 	// POSTだけを受け入れる

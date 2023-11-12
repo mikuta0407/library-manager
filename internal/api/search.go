@@ -14,7 +14,7 @@ import (
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
-	// /search/(book|cd)/
+	// /search/(book|book-doujin|cd|other)/
 
 	// POSTだけを受け入れる
 	switch r.Method {

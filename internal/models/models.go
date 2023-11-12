@@ -8,7 +8,7 @@ type Item struct {
 	Purchase string `json:"purchase"`
 	Place    string `json:"place"`
 	Note     string `json:"note"`
-	Image    []byte `json:"image"`
+	Image    string `json:"image"`
 }
 
 type ItemArray struct {

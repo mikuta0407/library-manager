@@ -12,7 +12,7 @@ import (
 )
 
 func List(w http.ResponseWriter, r *http.Request) {
-	// /list/(book|cd)
+	// /list/(book|book-doujin|cd|other)
 
 	switch r.Method {
 	case "GET":

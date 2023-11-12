@@ -15,7 +15,7 @@ import (
 )
 
 func Update(w http.ResponseWriter, r *http.Request) {
-	// /update/(book|cd)/
+	// /update/(book|book-doujin|cd|other)/
 
 	// PUTだけを受け入れる
 	switch r.Method {
