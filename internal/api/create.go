@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -15,7 +14,7 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	// /create/(book|cd)/
+	// /api/create
 
 	// POSTだけを受け入れる
 	switch r.Method {
@@ -33,16 +32,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// パラメータ数確認
-	params, err := getRouteParams(r, 3)
+	_, err := getRouteParams(r, 2) // /api /create
 	if err != nil {
-		returnErrorMessage(w, http.StatusBadRequest, err)
-		return
-	}
-
-	// book/cd判定
-	fmt.Println(params)
-	if err := judgeMode(params); err != nil {
-		log.Println(err)
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
 	}
@@ -81,8 +72,17 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		returnErrorMessage(w, http.StatusBadRequest, errors.New("no title specified"))
 		return
 	}
+	if item.Category == "" {
+		log.Println(err)
+		returnErrorMessage(w, http.StatusBadRequest, errors.New("no category specified"))
+		return
+	}
 
-	id, err := database.CreateItem(libraryMode, item)
+	if item.Image == "" {
+		item.Image = "No Image"
+	}
+
+	id, err := database.CreateItem(item)
 	if err != nil {
 		log.Println(err)
 		returnErrorMessage(w, http.StatusInternalServerError, err)

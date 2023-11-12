@@ -42,14 +42,24 @@ func DisconnectDB() error {
 }
 
 // book/cd全一覧取得
-func GetList(libraryMode string) (models.ItemArray, error) {
+func GetList(category string) (models.ItemArray, error) {
 
 	var items models.ItemArray
 
-	// SELECT *する
-	rows, err := db.Query("SELECT * FROM " + libraryMode)
-	if err != nil {
-		return items, err
+	// SELECTする
+	var rows *sql.Rows
+	var err error
+
+	if category == "all" {
+		rows, err = db.Query("SELECT id, title, category, author, code, purchase, place, note, image FROM library")
+		if err != nil {
+			return items, err
+		}
+	} else {
+		rows, err = db.Query("SELECT id, title, category, author, code, purchase, place, note, image FROM library WHERE category = $1", category)
+		if err != nil {
+			return items, err
+		}
 	}
 
 	defer rows.Close()
@@ -57,7 +67,7 @@ func GetList(libraryMode string) (models.ItemArray, error) {
 	// rowごとに一旦突っ込んでappendでスライスに追加
 	for rows.Next() {
 		var item models.Item
-		if err := rows.Scan(&item.Id, &item.Title, &item.Author, &item.Code, &item.Purchase, &item.Place, &item.Note, &item.Image); err != nil {
+		if err := rows.Scan(&item.Id, &item.Title, &item.Category, &item.Author, &item.Code, &item.Purchase, &item.Place, &item.Note, &item.Image); err != nil {
 			return items, err
 		}
 		items.ItemList = append(items.ItemList, item)
@@ -66,12 +76,12 @@ func GetList(libraryMode string) (models.ItemArray, error) {
 }
 
 // 1つだけ取得(IDをもとに)
-func GetDetail(libraryMode string, id int) (models.Item, error) {
+func GetDetail(id int) (models.Item, error) {
 
 	var item models.Item
 
 	// プリペアドステートメント作成
-	prepStmt := "SELECT * FROM " + libraryMode + " WHERE id = $1"
+	prepStmt := "SELECT id, title, category, author, code, purchase, place, note, image FROM library WHERE id = $1"
 
 	// 実行
 	prep, err := db.Prepare(prepStmt)
@@ -81,7 +91,7 @@ func GetDetail(libraryMode string, id int) (models.Item, error) {
 	defer prep.Close()
 
 	// item構造体に突っ込んで返却
-	err = prep.QueryRow(id).Scan(&item.Id, &item.Title, &item.Author, &item.Code, &item.Purchase, &item.Place, &item.Note, &item.Image)
+	err = prep.QueryRow(id).Scan(&item.Id, &item.Title, &item.Category, &item.Author, &item.Code, &item.Purchase, &item.Place, &item.Note, &item.Image)
 	if err != nil {
 		return item, err
 	}
@@ -90,7 +100,7 @@ func GetDetail(libraryMode string, id int) (models.Item, error) {
 }
 
 // DBにINSERTする
-func CreateItem(libraryMode string, item models.Item) (int64, error) {
+func CreateItem(item models.Item) (int64, error) {
 
 	var insertId int64 // insert idを入れる
 
@@ -101,10 +111,10 @@ func CreateItem(libraryMode string, item models.Item) (int64, error) {
 	}
 
 	// クエリ準備
-	prepStmt := "INSERT INTO " + libraryMode + " (title, author, code, purchase, place, note, image) values ($1, $2, $3, $4, $5, $6, $7)"
+	prepStmt := "INSERT INTO library (title, category, author, code, purchase, place, note, image) values ($1, $2, $3, $4, $5, $6, $7, $8)"
 
 	// INSRT実行
-	res, err := tx.Exec(prepStmt, item.Title, item.Author, item.Code, item.Purchase, item.Place, item.Note, item.Image)
+	res, err := tx.Exec(prepStmt, item.Title, item.Category, item.Author, item.Code, item.Purchase, item.Place, item.Note, item.Image)
 	if err != nil {
 		tx.Rollback()
 		return -1, err
@@ -123,7 +133,7 @@ func CreateItem(libraryMode string, item models.Item) (int64, error) {
 	return insertId, nil
 }
 
-func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) {
+func SearchItem(item models.Item) (models.ItemArray, error) {
 
 	// 使うやつ宣言
 
@@ -136,7 +146,7 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 	/* 一旦それぞれの項目で検索し、該当のIDを取得する (重複削除前提でとりあえず全部スライスに入れる) */
 	// タイトル検索
 	if item.Title != "" {
-		res, err = searchColumnId(libraryMode, "title", item.Title)
+		res, err = searchColumnId("title", item.Title)
 		if err != nil {
 			return items, err
 		}
@@ -145,7 +155,7 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 
 	// 著者・アーティスト名検索
 	if item.Author != "" {
-		res, err = searchColumnId(libraryMode, "author", item.Author)
+		res, err = searchColumnId("author", item.Author)
 		if err != nil {
 			return items, err
 		}
@@ -154,7 +164,7 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 
 	// コード検索
 	if item.Code != "" {
-		res, err = searchColumnId(libraryMode, "code", item.Code)
+		res, err = searchColumnId("code", item.Code)
 		if err != nil {
 			return items, err
 		}
@@ -163,7 +173,7 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 
 	// 購入場所検索
 	if item.Purchase != "" {
-		res, err = searchColumnId(libraryMode, "purchase", item.Purchase)
+		res, err = searchColumnId("purchase", item.Purchase)
 		if err != nil {
 			return items, err
 		}
@@ -172,7 +182,7 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 
 	// 場所検索
 	if item.Place != "" {
-		res, err = searchColumnId(libraryMode, "place", item.Place)
+		res, err = searchColumnId("place", item.Place)
 		if err != nil {
 			return items, err
 		}
@@ -181,7 +191,7 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 
 	// 備考欄検索
 	if item.Note != "" {
-		res, err = searchColumnId(libraryMode, "node", item.Note)
+		res, err = searchColumnId("node", item.Note)
 		if err != nil {
 			return items, err
 		}
@@ -200,7 +210,7 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 	}
 
 	// 得られたIDを元にSELECT
-	prepStmt := "SELECT * FROM " + libraryMode + " WHERE id in ("
+	prepStmt := "SELECT id, title, category, author, code, purchase, place, note, image FROM library WHERE id in ("
 	for i, id := range uniqSearchResultId {
 		prepStmt = prepStmt + strconv.FormatInt(id, 10)
 		if i != len(uniqSearchResultId)-1 {
@@ -231,10 +241,10 @@ func SearchItem(libraryMode string, item models.Item) (models.ItemArray, error) 
 }
 
 // SearchItemで項目ごとに検索するための関数。IDのスライスを返却する
-func searchColumnId(libraryMode string, columnName string, value string) ([]int64, error) {
+func searchColumnId(columnName string, value string) ([]int64, error) {
 	var res []int64
 
-	prepStmt := "SELECT id FROM " + libraryMode + " WHERE " + columnName + " LIKE '%'||?||'%'"
+	prepStmt := "SELECT id FROM library WHERE " + columnName + " LIKE '%'||?||'%'"
 	fmt.Println(prepStmt)
 	rows, err := db.Query(prepStmt, value)
 	if err != nil {
@@ -256,12 +266,12 @@ func searchColumnId(libraryMode string, columnName string, value string) ([]int6
 }
 
 // UPDATEする
-func UpdateItem(libraryMode string, item models.Item) error {
+func UpdateItem(item models.Item) error {
 
 	itemId := int64(item.Id)
 
 	// 存在するのか確認
-	if _, err := GetDetail(libraryMode, int(itemId)); err != nil {
+	if _, err := GetDetail(int(itemId)); err != nil {
 		return errors.New("No record")
 	}
 
@@ -272,10 +282,10 @@ func UpdateItem(libraryMode string, item models.Item) error {
 	}
 
 	// UPDATEクエリ準備
-	prepStmt := "UPDATE " + libraryMode + " SET title = ?, author = ?, code = ?, purchase = ?, place = ?, note = ?, image = ? WHERE id = ?"
+	prepStmt := "UPDATE library SET title = ?, category = ?,author = ?, code = ?, purchase = ?, place = ?, note = ?, image = ? WHERE id = ?"
 
 	// Update実行
-	_, err = tx.Exec(prepStmt, item.Title, item.Author, item.Code, item.Purchase, item.Place, item.Note, item.Image, item.Id)
+	_, err = tx.Exec(prepStmt, item.Title, item.Category, item.Author, item.Code, item.Purchase, item.Place, item.Note, item.Image, item.Id)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -288,10 +298,10 @@ func UpdateItem(libraryMode string, item models.Item) error {
 }
 
 // DELETEする
-func DeleteItem(libraryMode string, itemId int) error {
+func DeleteItem(itemId int) error {
 
 	// 存在するのか確認
-	if _, err := GetDetail(libraryMode, itemId); err != nil {
+	if _, err := GetDetail(itemId); err != nil {
 		return errors.New("No record")
 	}
 
@@ -302,7 +312,7 @@ func DeleteItem(libraryMode string, itemId int) error {
 	}
 
 	// DELETEクエリ準備
-	prepStmt := "DELETE FROM " + libraryMode + " WHERE id = ?"
+	prepStmt := "DELETE FROM library WHERE id = ?"
 
 	// Delete実行
 	_, err = tx.Exec(prepStmt, itemId)

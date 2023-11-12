@@ -6,8 +6,8 @@ package cmd
 import (
 	_ "embed"
 	"log"
-	"os"
 
+	"github.com/mikuta0407/library-manager/internal/database"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +32,10 @@ func init() {
 var emptyLibraryDBFileBytes []byte
 
 func generateDbFile(filepath string) {
-	if err := os.WriteFile(filepath, emptyLibraryDBFileBytes, 0666); err != nil {
-		log.Fatal(err)
+	if err := database.ConnectDB; err != nil {
+		log.Fatalln(err)
+		return
 	}
+
+	defer database.DisconnectDB()
 }
