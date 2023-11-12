@@ -28,12 +28,18 @@ func getRouteParams(r *http.Request, limit int) ([]string, error) {
 var libraryMode string
 
 func judgeMode(params []string) error {
-	if params[1] == "cd" {
-		libraryMode = "cd"
-	} else if params[1] == "book" {
-		libraryMode = "book"
-	} else {
-		return fmt.Errorf("not cd or book")
+	switch params[1] {
+		case "cd":
+			libraryMode = "cd"
+		case "doujin":
+			libraryMode = "doujin"
+		case "book":
+			libraryMode = "book"
+		case "other":
+			libraryMode = "other"
+		default:
+			return fmt.Errorf("data select Error")
 	}
+	
 	return nil
 }
