@@ -15,7 +15,7 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	// /create/(book|cd)/
+	// /create/(book|book-doujin|cd|other)/
 
 	// POSTだけを受け入れる
 	switch r.Method {

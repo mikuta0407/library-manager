@@ -261,7 +261,7 @@ $ curl -sS http://localhost:8080/delete/book/10 | jq .
 |purchase|TEXT|購入場所|
 |place|TEXT|存在場所|
 |note|TEXT|備考欄|
-|image|BLOB|画像データ(base64)|
+|image|TEXT|画像データ(URL)|
 
 ```sql
 CREATE TABLE "book" (
@@ -271,7 +271,7 @@ CREATE TABLE "book" (
 	"code"	TEXT,
 	"place"	TEXT,
 	"note"	TEXT,
-	"image"	BLOB,
+	"image"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 )
 ```
@@ -287,7 +287,7 @@ CREATE TABLE "book" (
 |purchase|TEXT|購入場所|
 |place|TEXT|存在場所|
 |note|TEXT|備考欄|
-|image|BLOB|画像データ(base64)|
+|image|TEXT|画像データ(URL)|
 
 ```sql
 CREATE TABLE "cd" (
@@ -297,7 +297,7 @@ CREATE TABLE "cd" (
 	"code"	TEXT,
 	"place"	TEXT,
 	"note"	TEXT,
-	"image"	BLOB,
+	"image"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 )
 ```
