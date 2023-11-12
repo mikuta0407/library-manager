@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -12,8 +11,8 @@ import (
 )
 
 func List(w http.ResponseWriter, r *http.Request) {
-	// /list/(book|cd)
 
+	// POSTだけを受け入れる
 	switch r.Method {
 	case "GET":
 	default:
@@ -21,20 +20,16 @@ func List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params, err := getRouteParams(r, 3)
+	params, err := getRouteParams(r, 3) // /api /list /category
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
 	}
 
-	fmt.Println(params)
-	if err := judgeMode(params); err != nil {
-		log.Println(err)
-		returnErrorMessage(w, http.StatusBadRequest, err)
-		return
-	}
 	var items models.ItemArray
-	items, err = database.GetList(libraryMode)
+
+	log.Println("Param:", params[2])
+	items, err = database.GetList(params[2])
 
 	if err != nil {
 		log.Println(err)

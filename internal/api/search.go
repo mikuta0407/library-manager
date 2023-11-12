@@ -40,11 +40,6 @@ func Search(w http.ResponseWriter, r *http.Request) {
 
 	// book/cd判定
 	fmt.Println(params)
-	if err := judgeMode(params); err != nil {
-		log.Println(err)
-		returnErrorMessage(w, http.StatusBadRequest, err)
-		return
-	}
 
 	// 容量確認 (実BodyData)
 	const maxDataSize int = 5242880                                             // 5MBに制限
@@ -82,7 +77,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 検索
-	items, err := database.SearchItem(libraryMode, item)
+	items, err := database.SearchItem(item)
 	if err != nil {
 		log.Println(err)
 		returnErrorMessage(w, http.StatusInternalServerError, err)
