@@ -38,7 +38,7 @@ func judgeMode(params []string) error {
 		case "other":
 			libraryMode = "other"
 		default:
-			return fmt.Errorf("data select Error")
+			return fmt.Errorf("dataType select Error")
 	}
 	
 	return nil
