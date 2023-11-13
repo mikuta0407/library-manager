@@ -13,9 +13,16 @@ import (
 
 func Delete(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+	//必要なメソッドを許可する
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE, OPTIONS")
+
 	// DELETEだけを受け入れる
-	// POSTだけを受け入れる
 	switch r.Method {
+	case "OPTIONS":
+		w.WriteHeader(http.StatusOK)
+		return
 	case "DELETE":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use DELETE Method"))

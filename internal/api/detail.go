@@ -12,9 +12,17 @@ import (
 )
 
 func Detail(w http.ResponseWriter, r *http.Request) {
-	// /detail/(book|cd)/{id}
+	// /detail/{id}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+	//必要なメソッドを許可する
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 
 	switch r.Method {
+	case "OPTIONS":
+		w.WriteHeader(http.StatusOK)
+		return
 	case "GET":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use GET Method"))
