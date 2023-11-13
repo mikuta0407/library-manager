@@ -17,6 +17,9 @@ func returnErrorMessage(w http.ResponseWriter, code int, err error) {
 	case http.StatusBadRequest:
 		log.Println("Bad Request")
 		errMsg.ErrMessage = "Bad Request"
+	case http.StatusUnauthorized:
+		log.Println("Login failed")
+		errMsg.ErrMessage = "Login Failed"
 	case http.StatusNotFound:
 		log.Println("Not Found")
 		errMsg.ErrMessage = "Not Found"

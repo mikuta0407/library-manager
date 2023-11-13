@@ -20,6 +20,8 @@ func HandleRequests(httpHost string, httpPort string, sqliteDBPath string) {
 	http.HandleFunc("/api/create", api.Create)  // レコード作成
 	http.HandleFunc("/api/update/", api.Update) // レコード編集
 	http.HandleFunc("/api/delete/", api.Delete) // レコード削除
+	http.HandleFunc("/api/login", api.Login)    // ログイン
+	http.HandleFunc("/api/regist", api.Regist)  // ユーザ作成
 	log.Fatal(http.ListenAndServe(httpHost+":"+httpPort, nil))
 	defer database.DisconnectDB()
 }
