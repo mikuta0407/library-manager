@@ -194,7 +194,7 @@ go run main.go <各種引数>
     - **注意**
         - RequestBodyの内容にすべて上書きするので、更新したい場合でも全項目を付与する必要がある
     - 使用例
-        ```
+        ```bash
         curl -X PUT -H "Content-Type: application/json" \
         -d '{"title":"テストのタイトル-あいうえお","author":"テストの著者-abcd","code":"abcd1234","purchase":"C101","place":"自宅","note":"20XX/MM/DD 自宅へ移動"}' \
         http://localhost:8080/update/10
@@ -219,21 +219,52 @@ go run main.go <各種引数>
         {"message":"Not Found","detail":"No record"}
         ```
 - /api/delete: DELETE
-    - レコード削除
-    - /{id}
-    - 使用例
-        ```
-        $ curl -sS -X DELETE http://localhost:8080/api/delete/10 | jq .
-        {
-          "message": "Success",
-          "id": "10"
-        }
-        $ curl -sS localhost:8080/detail/10 | jq . 
-        {
-          "message": "Not Found",
-          "detail": "No record"
-        }
-        ```
+  - レコード削除
+  - /{id}
+  - 使用例
+      ```
+      $ curl -sS -X DELETE http://localhost:8080/api/delete/10 | jq .
+      {
+        "message": "Success",
+        "id": "10"
+      }
+      $ curl -sS localhost:8080/detail/10 | jq . 
+      {
+        "message": "Not Found",
+        "detail": "No record"
+      }
+      ```
+- /api/regist: POST
+  - ユーザ作成
+  - 使用例
+    - ```bash
+      $ curl localhost:8080/api/regist -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"passneko"}'
+      {"message":"Success","id":"783be599-316e-4e53-aba7-2377d890e996"}
+      ```
+      ```bash
+      $ curl localhost:8080/api/regist -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"passneko"}'
+      {"message":"Internal Server Error","detail":"User is already exists"}
+      ```
+- /api/login: POST
+  - ログイン
+  - 使用例
+    - ```bash
+      $ curl localhost:8080/api/login -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"passneko"}'
+      {"username":"testuser","uuid":"783be599-316e-4e53-aba7-2377d890e996"}
+      ```
+      ```bash
+      $ curl localhost:8080/api/login -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"wrongpass"}'
+      {"message":"Login Failed","detail":"Wrong Password"}
+      ```
+      ```bash
+      $ curl localhost:8080/api/login -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser2","password":"passneko"}'
+      {"message":"Login Failed","detail":"sql: no rows in result set"}
+      ```
 
 ### メソッドが異なった場合
 以下のような応答となり、処理が行われない
