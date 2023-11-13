@@ -11,37 +11,7 @@ import (
 	"github.com/mikuta0407/library-manager/internal/models"
 )
 
-var db *sql.DB
-
-// DB接続
-func ConnectDB(filename string) error {
-	var err error
-
-	// 接続開始
-	db, err = sql.Open("sqlite3", filename)
-	if err != nil {
-		return err
-	}
-
-	// Ping確認
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("DB Connected")
-
-	return nil
-}
-
-// DB切断
-func DisconnectDB() error {
-	if err := db.Close(); err != nil {
-		log.Fatalln(err)
-	}
-	return nil
-}
-
-// book/cd全一覧取得
+// カテゴリ内全一覧取得
 func GetList(category string) (models.ItemArray, error) {
 
 	var items models.ItemArray
