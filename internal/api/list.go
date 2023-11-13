@@ -11,9 +11,17 @@ import (
 )
 
 func List(w http.ResponseWriter, r *http.Request) {
+	// /api/list/{category}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	//必要なメソッドを許可する
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 
 	// POSTだけを受け入れる
 	switch r.Method {
+	case "OPTIONS":
+		w.WriteHeader(http.StatusOK)
+		return
 	case "GET":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use GET Method"))
