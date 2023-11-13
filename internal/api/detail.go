@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -22,26 +21,19 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params, err := getRouteParams(r, 4)
+	params, err := getRouteParams(r, 3) // /api /detail /{id}
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
 	}
 
-	fmt.Println(params)
-	if err := judgeMode(params); err != nil {
-		log.Println(err)
-		returnErrorMessage(w, http.StatusBadRequest, err)
-		return
-	}
-
-	id, err := strconv.Atoi(params[3])
+	id, err := strconv.Atoi(params[2])
 	if err != nil {
 		log.Println(err)
 		returnErrorMessage(w, http.StatusBadRequest, err)
 	}
 	var item models.Item
-	item, err = database.GetDetail(libraryMode, id)
+	item, err = database.GetDetail(id)
 
 	if err != nil {
 		log.Println(err)

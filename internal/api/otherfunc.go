@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -23,17 +22,4 @@ func getRouteParams(r *http.Request, limit int) ([]string, error) {
 		return nil, errors.New("Param length error")
 	}
 	return params, nil
-}
-
-var libraryMode string
-
-func judgeMode(params []string) error {
-	if params[2] == "cd" {
-		libraryMode = "cd"
-	} else if params[2] == "book" {
-		libraryMode = "book"
-	} else {
-		return fmt.Errorf("not cd or book")
-	}
-	return nil
 }

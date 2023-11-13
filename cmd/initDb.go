@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/mikuta0407/library-manager/internal/database"
 	"github.com/spf13/cobra"
 )
 
@@ -28,11 +29,22 @@ func init() {
 	initDbCmd.Flags().StringVarP(&filepath, "filepath", "f", "./library.db", "filename of empty sqlite3 db file ")
 }
 
-//go:embed library.db
 var emptyLibraryDBFileBytes []byte
 
 func generateDbFile(filepath string) {
-	if err := os.WriteFile(filepath, emptyLibraryDBFileBytes, 0666); err != nil {
-		log.Fatal(err)
+
+	_, err := os.Stat(filepath)
+	if err == nil {
+		log.Println(filepath, "is exists. No modified.")
+		return
 	}
+
+	if err := database.ConnectDB(filepath); err != nil {
+		log.Fatalln(err)
+		return
+	}
+
+	log.Println(filepath, "is generated")
+
+	defer database.DisconnectDB()
 }
