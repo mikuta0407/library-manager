@@ -56,19 +56,19 @@ go run main.go <各種引数>
     ```
 - DBファイル生成
   - ```
-    ./library-mamanger [-f filepath]
+    ./library-mamanger initdb [-f filepath]
     ```
     - `-f` (`--filepath`)
       - 出力ファイル名(指定しない場合のデフォルトは`./library.db`)
 
 ## API仕様
 
-- /list: GET
+- /api/list: GET
     - 一覧
-    - /(book|cd)
-    - 応答例 /list/book
+    - `/{カテゴリ名}` (`all`にすると全件取得)
+    - 応答例 /api/list/book
         ```
-        $ curl -sS localhost:8080/list/book | jq .
+        $ curl -sS localhost:8080/api/list/book | jq .
         {
           "items": [
             {
@@ -79,7 +79,7 @@ go run main.go <各種引数>
               "purchase": "C101",
               "place": "home",
               "note": "testnote",
-              "image": null
+              "image": "No Image""
             },
             {
               "id": 2,
@@ -89,22 +89,23 @@ go run main.go <各種引数>
               "purchase": "",
               "place": "234567",
               "note": "home2",
-              "image": "Ng=="
+              "image": "https://example.com/hoge.jpg"
             },
             ...
           ]
         }
         ```
-- /detail: GET
+- /api/detail: GET
     - 詳細
-    - /(book|cd)
+    - `/{カテゴリ名}`
         - /{id}
-    - 使用例 /detail/book/1
+    - 使用例 /api/detail/book/1
         ```
-        $ curl -sS localhost:8080/detail/book/1 | jq .
+        $ curl -sS localhost:8080/api/detail/1 | jq .
         {
           "id": 1,
           "title": "testtitle",
+          "category": "book"
           "author": "testauthor",
           "code": "12345678",
           "purchase": "C101",
@@ -115,18 +116,17 @@ go run main.go <各種引数>
         ```
     - 存在しないIDの場合
         ```
-        $ curl -sS localhost:8080/detail/book/100 | jq .
+        $ curl -sS localhost:8080/api/detail/100 | jq .
         {
           "message": "Not Found",
           "detail": "No record"
         }
-- /search: POST
+- /api/search: POST
     - 検索
-    - /(book|cd)
     - title/author/code/purchase/place/noteでLIKE検索する
     - 使用例
         ```
-        $ curl -sS -X POST -H "Content-Type: application/json" -d  '{"title":"test","author":"test"}' http://localhost:8080/search/book | jq .
+        $ curl -sS -X POST -H "Content-Type: application/json" -d  '{"title":"test","author":"test"}' http://localhost:8080/api/search | jq .
         {
           "items": [
             {
@@ -155,13 +155,12 @@ go run main.go <各種引数>
         ```
     - 存在しない場合
         ```
-        $ curl -sS -X POST -H "Content-Type: application/json" -d  '{"title":"あああ","author":"あああ"}' http://localhost:8080/search/book | jq .
+        $ curl -sS -X POST -H "Content-Type: application/json" -d  '{"title":"あああ","author":"あああ"}' http://localhost:8080/api/search | jq .
         {
           "items": null
         }
-- /create: POST
+- /api/create: POST
     - レコード作成
-    - /(book|cd)
     - RequestBody: `{"title":"hoge","artist":"fuga".....}`
         - Response: id
     - title以外は空欄でもOK
@@ -172,10 +171,10 @@ go run main.go <各種引数>
     - 使用例
         ```
         $ curl -X POST -H "Content-Type: application/json" \
-        -d '{"title":"テストのタイトル-あいうえお","author":"テストの著者-abcd","code":"abcd1234","purchase":"C101","place":"倉庫","note":" にゃーん"}' \
-        http://localhost:8080/create/book
+        -d '{"title":"テストのタイトル-あいうえお","category":"book","author":"テストの著者-abcd","code":"abcd1234","purchase":"C101","place":"倉庫","note":" にゃーん"}' \
+        http://localhost:8080/api/create
         {"message":"Success","id":"10"}
-        $ curl -sS localhost:8080/detail/book/10 | jq .
+        $ curl -sS localhost:8080/api/detail/10 | jq .
         {
           "id": 10,
           "title": "テストのタイトル-あいうえお",
@@ -187,20 +186,20 @@ go run main.go <各種引数>
           "image": null
         }
         ```
-- /update: PUT
+- /api/update: PUT
     - レコード編集
-    - /(book|cd)
+    - /{id}
     - RequestBody: `{"title":"hoge","artist":"fuga".....}`
         - Response: id
     - **注意**
         - RequestBodyの内容にすべて上書きするので、更新したい場合でも全項目を付与する必要がある
     - 使用例
-        ```
+        ```bash
         curl -X PUT -H "Content-Type: application/json" \
         -d '{"title":"テストのタイトル-あいうえお","author":"テストの著者-abcd","code":"abcd1234","purchase":"C101","place":"自宅","note":"20XX/MM/DD 自宅へ移動"}' \
-        http://localhost:8080/update/book/10
+        http://localhost:8080/update/10
         {"message":"Success","id":"10"}
-        $ curl -sS localhost:8080/detail/book/10 | jq .
+        $ curl -sS localhost:8080/api/detail/10 | jq .
         {
           "id": 10,
           "title": "テストのタイトル-あいうえお",
@@ -216,31 +215,61 @@ go run main.go <各種引数>
         ```
         $ curl -X PUT -H "Content-Type: application/json" \
         -d '{"title":"テストのタイトル-あいうえお"}' \
-        http://localhost:8080/update/book/100
+        http://localhost:8080/update/100
         {"message":"Not Found","detail":"No record"}
         ```
-- /delete: DELETE
-    - レコード削除
-    - /(book|cd)
-        - /{id}
-    - 使用例
-        ```
-        $ curl -sS -X DELETE http://localhost:8080/delete/book/10 | jq .
-        {
-          "message": "Success",
-          "id": "10"
-        }
-        $ curl -sS localhost:8080/detail/book/10 | jq . 
-        {
-          "message": "Not Found",
-          "detail": "No record"
-        }
-        ```
+- /api/delete: DELETE
+  - レコード削除
+  - /{id}
+  - 使用例
+      ```
+      $ curl -sS -X DELETE http://localhost:8080/api/delete/10 | jq .
+      {
+        "message": "Success",
+        "id": "10"
+      }
+      $ curl -sS localhost:8080/detail/10 | jq . 
+      {
+        "message": "Not Found",
+        "detail": "No record"
+      }
+      ```
+- /api/regist: POST
+  - ユーザ作成
+  - 使用例
+    - ```bash
+      $ curl localhost:8080/api/regist -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"passneko"}'
+      {"message":"Success","id":"783be599-316e-4e53-aba7-2377d890e996"}
+      ```
+      ```bash
+      $ curl localhost:8080/api/regist -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"passneko"}'
+      {"message":"Internal Server Error","detail":"User is already exists"}
+      ```
+- /api/login: POST
+  - ログイン
+  - 使用例
+    - ```bash
+      $ curl localhost:8080/api/login -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"passneko"}'
+      {"username":"testuser","uuid":"783be599-316e-4e53-aba7-2377d890e996"}
+      ```
+      ```bash
+      $ curl localhost:8080/api/login -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser","password":"wrongpass"}'
+      {"message":"Login Failed","detail":"Wrong Password"}
+      ```
+      ```bash
+      $ curl localhost:8080/api/login -H "Content-Type: application/json" \
+      -X POST -d '{"username":"testuser2","password":"passneko"}'
+      {"message":"Login Failed","detail":"sql: no rows in result set"}
+      ```
 
 ### メソッドが異なった場合
 以下のような応答となり、処理が行われない
 ```
-$ curl -sS http://localhost:8080/delete/book/10 | jq .
+$ curl -sS http://localhost:8080/delete/10 | jq .
 {
   "message": "Method Not Allowed",
   "detail": "Use DELETE Method"
@@ -250,8 +279,7 @@ $ curl -sS http://localhost:8080/delete/book/10 | jq .
 
 ## DB設計
 
-### book
-
+### library
 |カラム名|型|内容|
 |:-:|:-:|:-:|
 |id|INTEGER|AUTOINCREMENTするやつ|
@@ -261,43 +289,20 @@ $ curl -sS http://localhost:8080/delete/book/10 | jq .
 |purchase|TEXT|購入場所|
 |place|TEXT|存在場所|
 |note|TEXT|備考欄|
-|image|BLOB|画像データ(base64)|
+|image|TEXT|URL|
 
 ```sql
-CREATE TABLE "book" (
+CREATE TABLE "library" (
 	"id"	INTEGER,
 	"title"	TEXT NOT NULL,
+	"category" TEXT,
 	"author"	TEXT,
 	"code"	TEXT,
+	"purchase" TEXT,
 	"place"	TEXT,
 	"note"	TEXT,
-	"image"	BLOB,
-	PRIMARY KEY("id" AUTOINCREMENT)
-)
-```
-
-### cd
-
-|カラム名|型|内容|
-|:-:|:-:|:-:|
-|id|INTEGER|AUTOINCREMENTするやつ|
-|title|TEXT|CD名|
-|author|TEXT|アーティスト|
-|code|TEXT|バーコードのやつ(CODE39の場合アルファベットがある)|
-|purchase|TEXT|購入場所|
-|place|TEXT|存在場所|
-|note|TEXT|備考欄|
-|image|BLOB|画像データ(base64)|
-
-```sql
-CREATE TABLE "cd" (
-	"id"	INTEGER,
-	"title"	TEXT NOT NULL,
-	"author"	TEXT,
-	"code"	TEXT,
-	"place"	TEXT,
-	"note"	TEXT,
-	"image"	BLOB,
+	"image"	TEXT,
+	"user" TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 )
 ```

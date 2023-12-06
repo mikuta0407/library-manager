@@ -9,12 +9,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version string
+var name string
+
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "show version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("library-manager v1.0")
+		fmt.Println(name + " " + version)
 	},
 }
 

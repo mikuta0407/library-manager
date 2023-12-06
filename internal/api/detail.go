@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -13,35 +12,36 @@ import (
 )
 
 func Detail(w http.ResponseWriter, r *http.Request) {
-	// /detail/(book|cd)/{id}
+	// /detail/{id}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+	//必要なメソッドを許可する
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 
 	switch r.Method {
+	case "OPTIONS":
+		w.WriteHeader(http.StatusOK)
+		return
 	case "GET":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use GET Method"))
 		return
 	}
 
-	params, err := getRouteParams(r, 4)
+	params, err := getRouteParams(r, 3) // /api /detail /{id}
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
 	}
 
-	fmt.Println(params)
-	if err := judgeMode(params); err != nil {
-		log.Println(err)
-		returnErrorMessage(w, http.StatusBadRequest, err)
-		return
-	}
-
-	id, err := strconv.Atoi(params[3])
+	id, err := strconv.Atoi(params[2])
 	if err != nil {
 		log.Println(err)
 		returnErrorMessage(w, http.StatusBadRequest, err)
 	}
 	var item models.Item
-	item, err = database.GetDetail(libraryMode, id)
+	item, err = database.GetDetail(id)
 
 	if err != nil {
 		log.Println(err)

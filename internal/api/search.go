@@ -14,10 +14,18 @@ import (
 )
 
 func Search(w http.ResponseWriter, r *http.Request) {
-	// /search/(book|cd)/
+	// /search
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+	//必要なメソッドを許可する
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 
 	// POSTだけを受け入れる
 	switch r.Method {
+	case "OPTIONS":
+		w.WriteHeader(http.StatusOK)
+		return
 	case "POST":
 	default:
 		returnErrorMessage(w, http.StatusMethodNotAllowed, errors.New("Use POST Method"))
@@ -32,7 +40,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// パラメータ数確認
-	params, err := getRouteParams(r, 3)
+	params, err := getRouteParams(r, 2) // /api /search
 	if err != nil {
 		returnErrorMessage(w, http.StatusBadRequest, err)
 		return
@@ -40,11 +48,6 @@ func Search(w http.ResponseWriter, r *http.Request) {
 
 	// book/cd判定
 	fmt.Println(params)
-	if err := judgeMode(params); err != nil {
-		log.Println(err)
-		returnErrorMessage(w, http.StatusBadRequest, err)
-		return
-	}
 
 	// 容量確認 (実BodyData)
 	const maxDataSize int = 5242880                                             // 5MBに制限
@@ -82,7 +85,7 @@ func Search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 検索
-	items, err := database.SearchItem(libraryMode, item)
+	items, err := database.SearchItem(item)
 	if err != nil {
 		log.Println(err)
 		returnErrorMessage(w, http.StatusInternalServerError, err)
